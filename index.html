@@ -1025,6 +1025,30 @@ img{display:block}
 };</script>
 <script>
 'use strict';
+/* 场景图取景：按各图人脸区间动态算焦距与宽度，任何窗口高度都不裁脸 */
+const FACE={
+  hero:[.05,.22], family:[.18,.60], school:[.31,.64], photo:[.35,.60],
+  banquet:[.12,.52], qing:[.04,.26], xu:[.02,.34], board:[.08,.45],
+  an:[.04,.24], elder:[.10,.32]
+};
+function fitArt(){
+  const box=document.querySelector('.scene-art'), img=document.getElementById('sceneImg');
+  if(!box||!img) return;
+  const W=box.clientWidth, H=box.clientHeight, iw=img.naturalWidth, ih=img.naturalHeight;
+  if(!W||!H||!iw||!ih) return;
+  const key=(img.getAttribute('src')||'').split('/').pop().replace(/\.\w+$/,'');
+  const f=FACE[key];
+  let w=Math.min(W,600), band=H*iw/(w*ih);
+  if(f){
+    const need=Math.min(.95,(f[1]-f[0])*1.5);
+    if(band<need){ w=Math.max(190,H*iw/(ih*need)); band=H*iw/(w*ih); }
+    const top=Math.max(0,Math.min(1-band,f[0]-0.01));
+    box.style.setProperty('--pos','50% '+((top/(1-band))*100).toFixed(1)+'%');
+  }else{
+    box.style.setProperty('--pos','50% 0%');
+  }
+  box.style.setProperty('--w',w.toFixed(0)+'px');
+}
 
 /* =========================================================
    基础工具
@@ -1488,10 +1512,11 @@ function renderScene(){
   if(!s) return;
   const ch = CHAPTERS[s.ch] || CHAPTERS[0];
   const art = s.art || IMG.hero;
-  $('#sceneImg').src = art;
+  const si = $('#sceneImg');
+  si.onload = fitArt;
+  si.src = art;
   $('.scene-art').style.setProperty('--art', `url("${art}")`);
-  $('.scene-art').style.setProperty('--pos', s.pos || '50% 0%');
-  $('.scene-art').style.setProperty('--w', s.artW ? s.artW + 'px' : 'min(100%,600px)');
+  if (si.complete) fitArt();
   $('#sceneCh').textContent = ch.no;
   $('#sceneEn').textContent = s.en || '';
   $('#sceneAge').textContent = s.age + ' 岁';
@@ -1963,7 +1988,7 @@ const SCENES = {
 
   /* ---------------- 第三章 ---------------- */
   c3_0:{
-    ch:3, age:7, art:IMG.school, pos:'50% 46%', en:'FIRST PLACE', title:'第 一 名', sub:'GRADE ONE · BUZZER',
+    ch:3, age:7, art:IMG.school, en:'FIRST PLACE', title:'第 一 名', sub:'GRADE ONE · BUZZER',
     text:[
       '江氏捐了一整座图书馆，你被塞进全市最好的小学。',
       '开学第一天，班主任把班长的位置，留给了江聿当年坐过的那个座位。',
@@ -1989,7 +2014,7 @@ const SCENES = {
   },
 
   c3_1:{
-    ch:3, age:10, art:IMG.photo, pos:'50% 45%', en:'THE PHOTO', title:'一 张 照 片', sub:'JIANG MANSION · 10 YEARS OLD',
+    ch:3, age:10, art:IMG.photo, en:'THE PHOTO', title:'一 张 照 片', sub:'JIANG MANSION · 10 YEARS OLD',
     text:[
       '三年后，迟岸把一张照片塞给你。',
       '照片上是你站在江家老宅门口，背挺得很直，身后的车比门还长。',
@@ -2008,7 +2033,7 @@ const SCENES = {
 
   /* ---------------- 第四章 ---------------- */
   c4_0:{
-    ch:4, age:15, art:IMG.banquet, pos:'50% 28%', en:'THE AUCTION', title:'联 姻 预 备 役', sub:'THE BID',
+    ch:4, age:15, art:IMG.banquet, en:'THE AUCTION', title:'联 姻 预 备 役', sub:'THE BID',
     text:[
       '江老爷子病重，继承权重新洗牌。江家的宴会，成了全城的牌桌。',
       '水晶灯下，所有人都在讨论同一件事：江家这六个孩子，谁会被推上去。',
@@ -2042,7 +2067,7 @@ const SCENES = {
   },
 
   c4_1:{
-    ch:4, age:15, art:IMG.banquet, pos:'50% 28%', en:'THE FIRST DEAL', title:'第 一 笔 生 意', sub:'FIRST GRAB · 6 SECONDS',
+    ch:4, age:15, art:IMG.banquet, en:'THE FIRST DEAL', title:'第 一 笔 生 意', sub:'FIRST GRAB · 6 SECONDS',
     text:[
       '拍卖会散场，你在后厅撞见一份挂牌文件：城郊那间快倒闭的药厂，晏氏要卖，江聿要买。',
       '那块地底下，明年通地铁。',
@@ -2090,7 +2115,7 @@ const SCENES = {
 
   /* ---------------- 第五章 ---------------- */
   c5_0:{
-    ch:5, age:18, art:IMG.xu, pos:'50% 5%', artW:460, en:'BIRTHDAY BOMB', title:'十 八 岁 的 炸 弹', sub:'CAKE · 7 SECONDS',
+    ch:5, age:18, art:IMG.xu, en:'BIRTHDAY BOMB', title:'十 八 岁 的 炸 弹', sub:'CAKE · 7 SECONDS',
     text:[
       '十八岁生日。江家老宅，蛋糕推上来的时候，你听见了熟悉的滴答声。',
       '——蛋糕里有一颗炸弹。红线的引信，只剩七秒。',
@@ -2118,7 +2143,7 @@ const SCENES = {
   },
 
   c5_1:{
-    ch:5, age:18, art:IMG.xu, pos:'50% 5%', artW:460, en:'THE BOOKBINDER', title:'修 书 的 人', sub:'OLD BOOKSHOP',
+    ch:5, age:18, art:IMG.xu, en:'THE BOOKBINDER', title:'修 书 的 人', sub:'OLD BOOKSHOP',
     text:[
       '第二天，你去了温叙的旧书店。',
       '店里有一股纸和樟脑的味道。他正在修一本三百年前的书，手指压着纸页，像压着一件易碎的东西。',
@@ -3680,6 +3705,10 @@ function fitTagsAboveCat(){
   apply();
   window.__fitTags = apply;
   window.addEventListener('resize', apply);
+  let _artT = 0;
+  const _artRefit = () => { clearTimeout(_artT); _artT = setTimeout(() => { try { fitArt(); } catch (e) {} }, 120); };
+  window.addEventListener('resize', _artRefit);
+  window.addEventListener('orientationchange', () => setTimeout(fitArt, 200));
   window.addEventListener('load', apply);
   window.addEventListener('orientationchange', () => setTimeout(apply, 150));
   if(window.visualViewport) window.visualViewport.addEventListener('resize', apply);
