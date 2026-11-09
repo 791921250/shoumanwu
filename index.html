@@ -596,6 +596,16 @@ img{display:block}
 .ending-stats b{display:block;margin-top:3px;font-family:var(--mono);font-size:14px;color:#f0e2c4;font-weight:500}
 .ending-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:34px}
 .ending-side{position:absolute;right:24px;top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-size:9.5px;letter-spacing:.4em;color:rgba(232,201,138,.35);z-index:2}
+/* 竖版立绘：模糊底铺满 + 原图完整贴右侧，避免被裁掉大半 */
+@media (min-width:981px){
+  .ending.end-portrait::before{content:"";position:absolute;inset:-8%;z-index:0;background:var(--endart) center/cover no-repeat;filter:blur(26px) brightness(.6) saturate(.95);transform:scale(1.04)}
+  .ending-art{z-index:1}
+  .ending-veil{z-index:2}
+  .ending-inner{z-index:3}
+  .ending-side{z-index:3}
+  .ending.end-portrait .ending-art{left:auto;right:0;top:0;width:auto;height:100%;object-fit:contain;animation:none;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 15%);mask-image:linear-gradient(90deg,transparent 0,#000 15%)}
+  .ending.end-portrait .ending-side{right:auto;left:22px}
+}
 
 /* ---------------- 桌面封面：人脸不被裁、文字压在暗部 ---------------- */
 @media (min-width:981px){
@@ -3310,6 +3320,14 @@ function showEnding(id){
   const MARRY_ART = { jue:IMG.marry_jue, xu:IMG.marry_xu, an:IMG.marry_an, qing:IMG.marry_qing };
   const art = (id === 'marriage' && state.partner && MARRY_ART[state.partner]) ? MARRY_ART[state.partner] : e.art;
   $('#endingArt').src = art;
+  const endEl = $('#ending');
+  endEl.style.setProperty('--endart', `url("${art}")`);
+  const markPortrait = () => {
+    const im = $('#endingArt');
+    endEl.classList.toggle('end-portrait', im.naturalHeight > im.naturalWidth * 1.05);
+  };
+  $('#endingArt').onload = markPortrait;
+  markPortrait();
   $('#endingCode').textContent = e.code;
   $('#endingTitle').textContent = e.title;
   $('#endingSub').textContent = e.sub;
