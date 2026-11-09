@@ -419,6 +419,9 @@ img{display:block}
 .modal-note{border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.025);font-size:12.5px;line-height:1.8;color:#98a4b4}
 .modal-note b{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--gold2);margin-bottom:5px;font-weight:400}
 .quote{font-family:var(--serif);font-size:16px;line-height:1.9;color:#e6d8ba;border-left:2px solid rgba(232,201,138,.45);padding-left:14px;margin:16px 0}
+.name-input{width:100%;margin-top:18px;padding:14px 16px;border-radius:12px;border:1px solid rgba(232,201,138,.34);background:rgba(255,255,255,.04);color:#ffe9bd;font-family:var(--serif);font-size:22px;letter-spacing:.14em;text-align:center;outline:none}
+.name-input:focus{border-color:rgba(232,201,138,.7);box-shadow:0 0 0 3px rgba(232,201,138,.12)}
+.name-tip{margin-top:10px;font-size:11px;color:#7f8b9b;letter-spacing:.1em;text-align:center}
 .archive-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
 .arc{border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:11px 13px;background:rgba(255,255,255,.02);font-size:12px;color:#6d7989}
 .arc.on{border-color:rgba(232,201,138,.35);color:#e6d8ba;background:rgba(232,201,138,.06)}
@@ -891,7 +894,7 @@ button.arc:hover{border-color:rgba(232,201,138,.6);transform:translateY(-1px)}
         </div>
         <div class="p-body">
           <div class="p-name">
-            <h2>江断</h2>
+            <h2 id="pName">江断</h2>
             <span id="pAge">24 岁</span>
           </div>
           <div class="p-lv" id="pTitle">序章 · 雨夜拆弹人</div>
@@ -1101,6 +1104,7 @@ const MAX_AP   = 3;
 function newState(){
   return {
     sceneId:'p0',
+    playerName:'江断',
     chapter:0,
     age:24,
     stats:{luck:52,mind:58,charm:55,body:50,control:48},
@@ -1435,13 +1439,19 @@ const CHAPTERS = [
   {no:'CH.07', label:'第七章 · 谁配得上你', role:'万亿继承人 · 25 岁'},
   {no:'CH.08', label:'第八章 · 四十七号码头', role:'江氏总裁 · 30 岁'},
   {no:'CH.09', label:'第九章 · 非洲的锂', role:'江氏总裁 · 32 岁'},
-  {no:'CH.10', label:'第十章 · 训狗术', role:'江断集团掌权人 · 34 岁'},
+  {no:'CH.10', label:'第十章 · 训狗术', role:'江氏掌权人 · 34 岁'},
   {no:'CH.11', label:'终章 · 最后一次手慢无', role:'江氏掌权人 · 60 岁'}
 ];
 
 /* =========================================================
    渲染
    ========================================================= */
+/* 把文案里的「江断」换成玩家取的名字 */
+function pn(s){
+  const n = (state && state.playerName) ? state.playerName : '江断';
+  return String(s == null ? '' : s).replace(/江断/g, n);
+}
+
 function renderAll(){
   renderChips();
   renderProfile();
@@ -1467,6 +1477,7 @@ function renderChips(){
 function renderProfile(){
   const ch = CHAPTERS[state.chapter] || CHAPTERS[0];
   $('#chapterTag').textContent = ch.no;
+  $('#pName').textContent = pn('江断');
   $('#pAge').textContent = state.age + ' 岁';
   $('#pTitle').textContent = ch.role;
   $('#assetsTxt').textContent = fmtMoney(state.assets);
@@ -1533,7 +1544,7 @@ function renderLog(){
     return;
   }
   el.innerHTML = state.log.slice(-14).map((l,i,arr) =>
-    `<div class="log-item ${i===arr.length-1?'new':''}"><span>${esc(l.t)}</span><p>${l.m}</p></div>`
+    `<div class="log-item ${i===arr.length-1?'new':''}"><span>${esc(l.t)}</span><p>${pn(l.m)}</p></div>`
   ).join('');
   el.scrollTop = el.scrollHeight;
 }
@@ -1554,16 +1565,16 @@ function renderScene(){
   $('#sceneTitle').innerHTML = esc(s.title) + `<small>${esc(s.sub || '')}</small>`;
 
   const text = typeof s.text === 'function' ? s.text(state) : s.text;
-  $('#story').innerHTML = (text || []).map(p=>`<p>${p}</p>`).join('');
+  $('#story').innerHTML = (text || []).map(p=>`<p>${pn(p)}</p>`).join('');
 
   const sysCard = $('#sysCard');
   if(s.sys && (!s.task || state.taskDone[s.id])){
     sysCard.classList.remove('hidden');
-    $('#sysCardText').innerHTML = s.sys;
+    $('#sysCardText').innerHTML = pn(s.sys);
     $('#sysCardTag').textContent = s.task ? '任务结算' : '系统';
   }else if(s.sys){
     sysCard.classList.remove('hidden');
-    $('#sysCardText').innerHTML = s.sys;
+    $('#sysCardText').innerHTML = pn(s.sys);
     $('#sysCardTag').textContent = '任务';
   }else{
     sysCard.classList.add('hidden');
@@ -1582,9 +1593,9 @@ function renderTask(s){
   const t = s.task;
   card.innerHTML = `
     <div class="task-top"><span>HAND-SLOW TASK · 手慢无</span><em>${t.seconds ? '窗口 ' + t.seconds + ' 秒' : '仅此一次'}</em></div>
-    <h4>${esc(t.title)}</h4>
-    <p>${esc(t.prompt)}</p>
-    ${done ? `<div class="task-result ${res && res.win ? 'win' : 'lose'}">${res ? res.text : ''}</div>`
+    <h4>${esc(pn(t.title))}</h4>
+    <p>${esc(pn(t.prompt))}</p>
+    ${done ? `<div class="task-result ${res && res.win ? 'win' : 'lose'}">${res ? pn(res.text) : ''}</div>`
            : `<button class="btn gold small" id="taskGo">接 受 任 务</button>`}`;
   if(!done){
     const btn = $('#taskGo');
@@ -1609,7 +1620,7 @@ function renderChoices(s){
     if(c.hide) return '';
     return `<button class="choice ${c.primary?'primary':''}" data-i="${i}">
       <span class="cic">${esc(c.ic || '·')}</span>
-      <span class="cbody"><b>${esc(c.label)}</b>${c.hint?`<small>${esc(c.hint)}</small>`:''}</span>
+      <span class="cbody"><b>${esc(pn(c.label))}</b>${c.hint?`<small>${esc(pn(c.hint))}</small>`:''}</span>
     </button>`;
   }).join('');
   wrap.querySelectorAll('.choice').forEach(btn => {
@@ -2244,7 +2255,7 @@ const SCENES = {
        log:'陆决三天没睡。第四天，他发来一个地址，和一句话：够他坐十年。', next:'c6_2'},
       {ic:'己', label:'自己上台，把江氏改名', hint:'掌控 ++ 资产 + · 谁也不靠',
        eff:{control:14, mind:6, assets:1200, flags:{alliance:'self'}},
-       log:'你自己走上台，把江氏改成了「江断集团」。江聿在台下笑了，笑得像终于等到这一天。', next:'c6_2'}
+       log:'你自己走上台，把江氏改成了以你名字命名的集团。江聿在台下笑了，笑得像终于等到这一天。', next:'c6_2'}
     ]
   },
 
@@ -2388,7 +2399,7 @@ const SCENES = {
       {ic:'吞', label:'反向收购晏氏', hint:'资产 ++ 掌控 ++ · 你会很累',
        eff:{assets:4600, control:10, mind:6}, log:'你反向收购了晏氏。晏清在签字仪式上说：我输得心服口服。', next:'c8_0'},
       {ic:'己', label:'谁都不签，自己上市', hint:'掌控 +++ · 你只属于你',
-       eff:{assets:3200, control:14, charm:4}, log:'你把三份文件都推了回去。三个月后，江断集团独立上市。', next:'c8_0'}
+       eff:{assets:3200, control:14, charm:4}, log:'你把三份文件都推了回去。三个月后，江氏集团独立上市。', next:'c8_0'}
     ]
   },
 
@@ -2649,7 +2660,7 @@ const SCENES = {
     sys:'最终任务：<b>留下一样东西</b>。钱、人、系统，或者你自己。',
     choices:[
       {ic:'钱', label:'留下钱', hint:'资产 ++ · 但没人替你花',
-       eff:{assets:2000}, finish:'money', log:'你留下了钱。江断集团成了这座城市的地基。'},
+       eff:{assets:2000}, finish:'money', log:'你留下了钱。江氏集团成了这座城市的地基。'},
       {ic:'人', label:'留下人', hint:'如果你选过谁，他会在门口等你',
        eff:{charm:6}, finish:'person', log:'你留下了人。门口有人撑着伞，等了你一整个下午。'},
       {ic:'统', label:'留下系统', hint:'煤球会记得你 · 隐藏条件',
@@ -2695,7 +2706,7 @@ function openLead(id){
         <div class="lead-note">
           <b><span>RELATIONSHIP / 好感</span><span>${rel}</span></b>
           <div class="track"><i style="width:${rel}%"></i></div>
-          <p>${l.short}</p>
+          <p>${pn(l.short)}</p>
         </div>
       </div>
       <div class="lead-right">
@@ -2703,14 +2714,14 @@ function openLead(id){
         <h2>${l.name}</h2>
         <div class="lead-sub">${l.tag}</div>
         <div class="lead-text">
-          <p class="quote">${l.quote}</p>
-          <p>${l.bio}</p>
+          <p class="quote">${pn(l.quote)}</p>
+          <p>${pn(l.bio)}</p>
         </div>
         <div class="lead-actions">
           <button class="btn gold small" id="leadMeet" ${state.ap<=0?'disabled':''}>约 见 · 1 AP</button>
           <button class="btn ghost small" id="leadClose">关 闭</button>
         </div>
-        <p class="lead-meet">${l.meet}</p>
+        <p class="lead-meet">${pn(l.meet)}</p>
       </div>
     </div>
   `);
@@ -3288,7 +3299,7 @@ const ENDINGS = {
   },
   queen:{
     code:'ENDING · S', title:'自 己 的 王 座', sub:'QUEEN OF HER OWN', art:IMG.queenGown,
-    text:'你没有嫁给任何人。六十岁那年，江断集团的市值超过了两个万亿，董事会把椅子换成了一整排。煤球死在你前面，埋在顶楼的花园里。你一个人站在落地窗前，城市在你脚下亮着——这一生，你没有替任何人签字。'
+    text:'你没有嫁给任何人。六十岁那年，江氏集团的市值超过了两个万亿，董事会把椅子换成了一整排。煤球死在你前面，埋在顶楼的花园里。你一个人站在落地窗前，城市在你脚下亮着——这一生，你没有替任何人签字。'
   },
   marriage:{
     code:'ENDING · A', title:'万 亿 联 姻', sub:'TWO TRILLIONS · ONE ROOF', art:IMG.qing,
@@ -3354,7 +3365,7 @@ function showEnding(id){
   $('#endingCode').textContent = e.code;
   $('#endingTitle').textContent = e.title;
   $('#endingSub').textContent = e.sub;
-  $('#endingText').textContent = e.text;
+  $('#endingText').textContent = pn(e.text);
 
   const rate = state.wins + state.losses ? Math.round(state.wins/(state.wins+state.losses)*100) : 0;
   $('#endingStats').innerHTML = `
@@ -3397,7 +3408,7 @@ function previewEnding(id){
   $('#endPreviewCode').textContent = e.code;
   $('#endPreviewTitle').textContent = e.title;
   $('#endPreviewSub').textContent = e.sub;
-  $('#endPreviewText').textContent = e.text;
+  $('#endPreviewText').textContent = pn(e.text);
   setEndingArt($('#endPreview'), $('#endPreviewArt'), endingArtFor(id));
   $('#endPreview').classList.add('show');
 }
@@ -3472,7 +3483,7 @@ function openMenu(){
   openModal(`
     <div class="eyebrow">MENU</div>
     <h2>${state.flags.ended ? '这一局已经结束' : '暂停'}</h2>
-    <div class="sub">江断 · ${state.age} 岁 · ${CHAPTERS[state.chapter] ? CHAPTERS[state.chapter].label : ''}</div>
+    <div class="sub">${esc(pn('江断'))} · ${state.age} 岁 · ${CHAPTERS[state.chapter] ? CHAPTERS[state.chapter].label : ''}</div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
       <button class="btn gold" id="menuResume">继 续 游 戏</button>
       <button class="btn ghost" id="menuRestart">重 新 开 始</button>
@@ -3533,9 +3544,38 @@ async function quickTask(){
 /* =========================================================
    启动 / 事件
    ========================================================= */
+function askName(){
+  openModal(`
+    <div class="eyebrow">SYSTEM · BINDING</div>
+    <h2>宿主，登记名字</h2>
+    <div class="sub">这个名字会被写进江家的族谱，也会被四个男人记住</div>
+    <input class="name-input" id="nameInput" maxlength="8" value="${esc(state.playerName || '')}" placeholder="江断" autocomplete="off">
+    <div class="name-tip">2 到 8 个字 · 全篇称呼都会用它</div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button class="btn gold" id="nameOk" style="flex:1">绑 定 · 开 始 拆 弹</button>
+      <button class="btn ghost" id="nameCancel">取 消</button>
+    </div>
+  `);
+  const inp = $('#nameInput');
+  inp.focus();
+  inp.select();
+  const ok = () => {
+    let v = String(inp.value || '').trim().replace(/[<>&"$]/g, '').slice(0, 8);
+    if(!v) v = '江断';
+    state.playerName = v;
+    closeModal();
+    startNew();
+  };
+  $('#nameOk').addEventListener('click', ok);
+  $('#nameCancel').addEventListener('click', closeModal);
+  inp.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.isComposing) ok(); });
+}
+
 function startNew(){
+  const nm = state.playerName || '江断';
   wipeSave();
   state = newState();
+  state.playerName = nm;
   save();
   $('#boot').classList.add('hidden');
   $('#ending').classList.remove('show');
@@ -3555,7 +3595,7 @@ function continueGame(){
 }
 
 function initEvents(){
-  $('#btnStart').addEventListener('click', startNew);
+  $('#btnStart').addEventListener('click', askName);
   $('#btnContinue').addEventListener('click', continueGame);
   $('#btnHow').addEventListener('click', openHow);
   $('#btnMenu').addEventListener('click', () => {
