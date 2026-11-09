@@ -1539,6 +1539,14 @@ function renderChoices(s){
   const locked = s.task && !state.taskDone[s.id];
   if(locked){ wrap.innerHTML = ''; return; }
   const list = (typeof s.choices === 'function' ? s.choices(state) : s.choices) || [];
+  if(!list.length && s.next){
+    wrap.innerHTML = `<button class="choice primary" data-next="1">
+      <span class="cic">→</span>
+      <span class="cbody"><b>${esc(s.nextLabel || '继 续')}</b><small>进入下一个节点</small></span>
+    </button>`;
+    wrap.querySelector('[data-next]').addEventListener('click', () => goto(s.next));
+    return;
+  }
   wrap.innerHTML = list.map((c, i) => {
     if(c.hide) return '';
     return `<button class="choice ${c.primary?'primary':''}" data-i="${i}">
@@ -1912,6 +1920,20 @@ const SCENES = {
       logWin:'幼儿园面试，你用一句话让老师记住了你。',
       logLose:'幼儿园面试，老师记住了江梨家的楼。'
     },
+    choices:[],
+    next:'c2_0b',
+    nextLabel:'面试结束 · 去拍入园照'
+  },
+
+  c2_0b:{
+    ch:2, age:3, art:IMG.family, en:'ON SET', title:'走 进 镜 头', sub:'ENROLLMENT PHOTO',
+    text:[
+      '面试结束，老师领你们到院子里拍入园纪念照。',
+      '摄影师举着相机说：「最重要的人站中间。」',
+      '江梨已经站到了最中间，回头看你。',
+      '快门还有三秒。'
+    ],
+    sys:'手慢无提示：镜头只等你三秒。三秒后，它自己会选一个人。',
     choices:[
       {ic:'镜', label:'走进镜头，站到最边上', hint:'不抢镜 · 但所有人都看见你',
        eff:{charm:5, mind:4}, log:'你站到最边上。照片洗出来，所有人第一眼看的都是你。', next:'c2_1'}
