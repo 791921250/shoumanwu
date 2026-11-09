@@ -367,10 +367,10 @@ img{display:block}
 .mdrawer{display:none}
 
 /* ---------------- 弹窗 ---------------- */
-.layer{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:22px;background:rgba(4,6,10,.78);backdrop-filter:blur(7px);opacity:0;pointer-events:none;transition:opacity .3s}
+.layer{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:22px;background:rgba(4,6,10,.84);opacity:0;pointer-events:none;transition:opacity .3s}
 .layer.show{opacity:1;pointer-events:auto}
 .modal{
-  position:relative;width:min(720px,94vw);max-height:88vh;overflow-y:auto;
+  position:relative;width:min(720px,94vw);min-width:0;max-height:88vh;overflow-y:auto;writing-mode:horizontal-tb;
   border-radius:20px;border:1px solid rgba(232,201,138,.26);
   background:linear-gradient(170deg,#121924,#0a0e15 70%);
   box-shadow:0 40px 90px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06);
