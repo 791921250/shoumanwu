@@ -387,30 +387,27 @@ img{display:block}
 .modal-hero img{width:100%;height:100%;object-fit:cover;object-position:50% 6%}
 .modal-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(10,14,21,.9) 100%)}
 
-/* ---------------- 人物卡：竖图 + 竖排文字 ---------------- */
-.lead-wrap{--leadH:clamp(320px,54vh,520px);display:flex;gap:20px;align-items:flex-start}
+/* ---------------- 人物卡：竖图 + 横排文字 ---------------- */
+.lead-wrap{--leadH:clamp(320px,54vh,520px);display:flex;gap:24px;align-items:stretch}
 .lead-art{flex:0 0 clamp(220px,32%,290px);height:var(--leadH);border-radius:14px;overflow:hidden;position:relative;background:#0b0f16;box-shadow:0 18px 44px rgba(0,0,0,.5)}
 .lead-art img{width:100%;height:100%;object-fit:cover;object-position:50% 12%}
 .lead-art::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 70px rgba(0,0,0,.55);border-radius:inherit}
-.lead-col{flex:1;min-width:0;height:var(--leadH);writing-mode:vertical-rl;text-orientation:upright;overflow:hidden}
-.lead-col>*{margin:0 0 0 15px}
-.lead-col .eyebrow{font-size:10px;letter-spacing:.34em;color:var(--gold2);font-family:var(--mono);text-transform:uppercase}
-.lead-col h2{margin:0;font-family:var(--serif);font-size:28px;line-height:1.2;letter-spacing:.12em;color:#f5eddc}
-.lead-col .sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.3em;color:#7d8a9c}
-.lead-col .quote{border:0;padding:0;color:#e5d6b6;font-family:var(--serif);font-size:14px;line-height:1.9;margin:0 0 0 15px}
-.lead-col p{font-size:12.5px;line-height:1.85;color:#a8b3c2;margin:0 0 0 15px}
+.lead-col{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;padding:2px 0}
+.lead-col .eyebrow{font-size:10px;letter-spacing:.34em;color:var(--gold2);font-family:var(--mono);text-transform:uppercase;margin-bottom:10px}
+.lead-col h2{margin:0 0 5px;font-family:var(--serif);font-size:30px;line-height:1.15;letter-spacing:.08em;color:#f5eddc}
+.lead-col .sub{font-family:var(--mono);font-size:9.5px;letter-spacing:.3em;color:#7d8a9c;margin-bottom:18px}
+.lead-col .quote{margin:0 0 18px;padding:0 0 0 14px;border-left:2px solid rgba(232,201,138,.45);font-family:var(--serif);font-size:15px;line-height:1.9;color:#e6d8ba}
+.lead-col p{font-size:13.5px;line-height:1.95;color:#a8b3c2;margin:0}
 .lead-foot{margin-top:18px;border-top:1px solid rgba(255,255,255,.06);padding-top:16px}
 .lead-note{border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.025);font-size:12.5px;line-height:1.8;color:#98a4b4}
 .lead-note b{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--gold2);margin-bottom:5px;font-weight:400}
 .lead-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px}
 .lead-meet{margin:12px 0 0;font-size:11.5px;line-height:1.8;color:#6f7b8c}
-/* 窄屏 / 矮屏回退：竖排需要空间，改为横排单列 */
+/* 窄屏 / 矮屏回退：图片改为横幅，文字在下 */
 @media (max-width:620px),(max-height:560px){
   .lead-wrap{display:block}
   .lead-art{width:100%;height:260px}
-  .lead-col{writing-mode:horizontal-tb;height:auto;margin-top:16px}
-  .lead-col>*{margin:0 0 10px}
-  .lead-col h2{font-size:24px}
+  .lead-col{margin-top:16px;padding:0}
 }
 .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .modal-note{border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.025);font-size:12.5px;line-height:1.8;color:#98a4b4}
