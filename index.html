@@ -424,19 +424,13 @@ img{display:block}
 .arc.on{border-color:rgba(232,201,138,.35);color:#e6d8ba;background:rgba(232,201,138,.06)}
 .arc b{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:#8a774f;margin-bottom:4px;font-weight:400}
 .arc.on b{color:var(--gold)}
-button.arc{display:block;width:100%;padding:0;text-align:left;font-family:inherit;cursor:pointer;overflow:hidden;transition:border-color .2s,transform .2s,background .2s}
+button.arc{display:block;width:100%;text-align:left;font-family:inherit;cursor:pointer;transition:border-color .2s,transform .2s}
 button.arc:hover{border-color:rgba(232,201,138,.6);transform:translateY(-1px)}
-.arc .thumb{display:block;width:100%;height:88px;object-fit:cover;object-position:50% 20%;border-bottom:1px solid rgba(255,255,255,.07)}
-.arc .thumb.ph{display:grid;place-items:center;background:rgba(255,255,255,.02);color:#39424f;font-family:var(--mono);font-size:18px;letter-spacing:.4em;text-indent:.4em}
-.arc .meta{display:block;padding:9px 12px 11px}
-.arc .peek-hint{display:block;margin-top:4px;font-size:10px;letter-spacing:.14em;color:#8a774f;font-family:var(--mono)}
-/* 结局大图预览 */
-.imgview{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:26px;background:rgba(3,5,9,.94);opacity:0;pointer-events:none;transition:opacity .25s}
-.imgview.show{opacity:1;pointer-events:auto}
-.imgview img{max-width:100%;max-height:calc(100vh - 110px);width:auto;height:auto;border-radius:12px;border:1px solid rgba(232,201,138,.2);box-shadow:0 30px 90px rgba(0,0,0,.72)}
-.imgview .cap{position:absolute;left:0;right:0;bottom:24px;text-align:center;font-family:var(--mono);font-size:11px;letter-spacing:.3em;color:#b9a179}
-.imgview .x{position:absolute;top:16px;right:18px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:rgba(10,14,20,.72);color:#d6cbb5;font-size:21px;line-height:1;cursor:pointer}
-.imgview .x:hover{border-color:rgba(232,201,138,.6);color:#ffe9bd}
+.peek-hint{display:block;margin-top:5px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#8a774f}
+/* 结局回看：复用结局页样式，叠在弹窗之上 */
+#endPreview{z-index:210}
+#endPreview .x{position:absolute;top:16px;right:18px;z-index:4;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:rgba(10,14,20,.72);color:#d6cbb5;font-size:21px;line-height:1;cursor:pointer}
+#endPreview .x:hover{border-color:rgba(232,201,138,.6);color:#ffe9bd}
 .toast{
   position:fixed;left:50%;bottom:86px;transform:translate(-50%,14px);z-index:90;
   padding:10px 18px;border-radius:999px;font-size:12.5px;letter-spacing:.06em;
@@ -1022,10 +1016,17 @@ button.arc:hover{border-color:rgba(232,201,138,.6);transform:translateY(-1px)}
   <div class="ending-side">THE END · 手慢无之后</div>
 </div>
 
-<div class="imgview" id="imgView">
-  <button class="x" id="imgViewClose" aria-label="关闭">×</button>
-  <img id="imgViewArt" alt="">
-  <div class="cap" id="imgViewCap"></div>
+<div class="ending" id="endPreview">
+  <img class="ending-art" id="endPreviewArt" alt="">
+  <div class="ending-veil"></div>
+  <button class="x" id="endPreviewClose" aria-label="关闭">×</button>
+  <div class="ending-inner">
+    <div class="ending-code" id="endPreviewCode">ENDING</div>
+    <h1 class="ending-title" id="endPreviewTitle"></h1>
+    <div class="ending-sub" id="endPreviewSub"></div>
+    <p class="ending-text" id="endPreviewText"></p>
+  </div>
+  <div class="ending-side">ARCHIVE · 结 局 回 看</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -3327,6 +3328,19 @@ function computeEnding(){
   return 'lost';
 }
 
+const MARRY_ART = { jue:IMG.marry_jue, xu:IMG.marry_xu, an:IMG.marry_an, qing:IMG.marry_qing };
+function endingArtFor(id){
+  const e = ENDINGS[id] || ENDINGS.retire;
+  return (id === 'marriage' && state.partner && MARRY_ART[state.partner]) ? MARRY_ART[state.partner] : e.art;
+}
+function setEndingArt(panel, img, art){
+  img.src = art;
+  panel.style.setProperty('--endart', `url("${art}")`);
+  const mark = () => panel.classList.toggle('end-portrait', img.naturalHeight > img.naturalWidth * 1.05);
+  img.onload = mark;
+  mark();
+}
+
 function showEnding(id){
   if(id === 'auto' || !id) id = computeEnding();
   const e = ENDINGS[id] || ENDINGS.retire;
@@ -3336,17 +3350,7 @@ function showEnding(id){
   $('#mg').classList.remove('show');
   $('#layer').classList.remove('show');
 
-  const MARRY_ART = { jue:IMG.marry_jue, xu:IMG.marry_xu, an:IMG.marry_an, qing:IMG.marry_qing };
-  const art = (id === 'marriage' && state.partner && MARRY_ART[state.partner]) ? MARRY_ART[state.partner] : e.art;
-  $('#endingArt').src = art;
-  const endEl = $('#ending');
-  endEl.style.setProperty('--endart', `url("${art}")`);
-  const markPortrait = () => {
-    const im = $('#endingArt');
-    endEl.classList.toggle('end-portrait', im.naturalHeight > im.naturalWidth * 1.05);
-  };
-  $('#endingArt').onload = markPortrait;
-  markPortrait();
+  setEndingArt($('#ending'), $('#endingArt'), endingArtFor(id));
   $('#endingCode').textContent = e.code;
   $('#endingTitle').textContent = e.title;
   $('#endingSub').textContent = e.sub;
@@ -3370,33 +3374,35 @@ function openArchive(){
   openModal(`
     <div class="eyebrow">ARCHIVE · ${got.length} / ${Object.keys(ENDINGS).length}</div>
     <h2>结局档案</h2>
-    <div class="sub">你这一生，有过多少种可能 · 点开可看大图</div>
+    <div class="sub">你这一生，有过多少种可能 · 点开回看结局</div>
     <div class="archive-list">
       ${Object.keys(ENDINGS).map(k => {
         const e = ENDINGS[k], on = got.includes(k);
         if(!on){
-          return `<div class="arc"><span class="thumb ph">？</span><span class="meta"><b>${e.code}</b>？？？</span></div>`;
+          return `<div class="arc"><b>${e.code}</b>？？？</div>`;
         }
-        return `<button class="arc on" data-art="${e.art}" data-cap="${e.code} · ${e.title}">
-          <img class="thumb" src="${e.art}" alt="${e.title}" loading="lazy">
-          <span class="meta"><b>${e.code}</b>${e.title}<span class="peek-hint">点击查看大图</span></span>
-        </button>`;
+        return `<button class="arc on" data-end="${k}"><b>${e.code}</b>${e.title}<span class="peek-hint">点击回看图文</span></button>`;
       }).join('')}
     </div>
     <p style="margin-top:16px">手慢，就什么都没有；但重开一局，你还有下一次三秒。</p>
   `);
-  document.querySelectorAll('#modalBody button.arc[data-art]').forEach(btn => {
-    btn.addEventListener('click', () => openImageView(btn.dataset.art, btn.dataset.cap));
+  document.querySelectorAll('#modalBody button.arc[data-end]').forEach(btn => {
+    btn.addEventListener('click', () => previewEnding(btn.dataset.end));
   });
 }
 
-function openImageView(src, cap){
-  $('#imgViewArt').src = src;
-  $('#imgViewCap').textContent = cap || '';
-  $('#imgView').classList.add('show');
+function previewEnding(id){
+  const e = ENDINGS[id];
+  if(!e) return;
+  $('#endPreviewCode').textContent = e.code;
+  $('#endPreviewTitle').textContent = e.title;
+  $('#endPreviewSub').textContent = e.sub;
+  $('#endPreviewText').textContent = e.text;
+  setEndingArt($('#endPreview'), $('#endPreviewArt'), endingArtFor(id));
+  $('#endPreview').classList.add('show');
 }
-function closeImageView(){
-  $('#imgView').classList.remove('show');
+function closeEndPreview(){
+  $('#endPreview').classList.remove('show');
 }
 
 function openHow(){
@@ -3567,14 +3573,16 @@ function initEvents(){
   });
   document.addEventListener('keydown', e => {
     if(e.key === 'Escape'){
-      if($('#imgView').classList.contains('show')){ closeImageView(); return; }
+      if($('#endPreview').classList.contains('show')){ closeEndPreview(); return; }
       closeModal();
       $('#mg').classList.remove('show');
       $('#mdrawer').classList.remove('open');
     }
   });
-  $('#imgViewClose').addEventListener('click', closeImageView);
-  $('#imgView').addEventListener('click', e => { if(e.target === $('#imgView')) closeImageView(); });
+  $('#endPreviewClose').addEventListener('click', closeEndPreview);
+  $('#endPreview').addEventListener('click', e => {
+    if(e.target === $('#endPreview')) closeEndPreview();
+  });
 
   // 抽屉菜单（移动端）与底部导航共用一套动作
   function handleNavAct(act, btn){
