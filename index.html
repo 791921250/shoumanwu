@@ -620,7 +620,7 @@ img{display:block}
   .col::-webkit-scrollbar-thumb{background:rgba(232,201,138,.22);border-radius:99px}
   .col::-webkit-scrollbar-track{background:transparent}
   .scene-art::before{content:"";position:absolute;inset:-8%;z-index:0;background:var(--art,none) 50% 18%/cover no-repeat;filter:blur(30px) brightness(.55) saturate(.9);transform:translateZ(0)}
-  .scene-art img{position:relative;z-index:1;display:block;width:min(100%,600px);margin:0 auto}
+  .scene-art img{position:relative;z-index:1;display:block;width:var(--w,min(100%,600px));margin:0 auto;object-position:var(--pos,50% 0%)}
 }
 @media (min-width:981px) and (max-height:830px){
   .grid{padding:10px 14px;gap:12px}
@@ -1490,6 +1490,8 @@ function renderScene(){
   const art = s.art || IMG.hero;
   $('#sceneImg').src = art;
   $('.scene-art').style.setProperty('--art', `url("${art}")`);
+  $('.scene-art').style.setProperty('--pos', s.pos || '50% 0%');
+  $('.scene-art').style.setProperty('--w', s.artW ? s.artW + 'px' : 'min(100%,600px)');
   $('#sceneCh').textContent = ch.no;
   $('#sceneEn').textContent = s.en || '';
   $('#sceneAge').textContent = s.age + ' 岁';
@@ -1961,7 +1963,7 @@ const SCENES = {
 
   /* ---------------- 第三章 ---------------- */
   c3_0:{
-    ch:3, age:7, art:IMG.school, en:'FIRST PLACE', title:'第 一 名', sub:'GRADE ONE · BUZZER',
+    ch:3, age:7, art:IMG.school, pos:'50% 46%', en:'FIRST PLACE', title:'第 一 名', sub:'GRADE ONE · BUZZER',
     text:[
       '江氏捐了一整座图书馆，你被塞进全市最好的小学。',
       '开学第一天，班主任把班长的位置，留给了江聿当年坐过的那个座位。',
@@ -1987,7 +1989,7 @@ const SCENES = {
   },
 
   c3_1:{
-    ch:3, age:10, art:IMG.photo, en:'THE PHOTO', title:'一 张 照 片', sub:'JIANG MANSION · 10 YEARS OLD',
+    ch:3, age:10, art:IMG.photo, pos:'50% 45%', en:'THE PHOTO', title:'一 张 照 片', sub:'JIANG MANSION · 10 YEARS OLD',
     text:[
       '三年后，迟岸把一张照片塞给你。',
       '照片上是你站在江家老宅门口，背挺得很直，身后的车比门还长。',
@@ -2006,7 +2008,7 @@ const SCENES = {
 
   /* ---------------- 第四章 ---------------- */
   c4_0:{
-    ch:4, age:15, art:IMG.banquet, en:'THE AUCTION', title:'联 姻 预 备 役', sub:'THE BID',
+    ch:4, age:15, art:IMG.banquet, pos:'50% 28%', en:'THE AUCTION', title:'联 姻 预 备 役', sub:'THE BID',
     text:[
       '江老爷子病重，继承权重新洗牌。江家的宴会，成了全城的牌桌。',
       '水晶灯下，所有人都在讨论同一件事：江家这六个孩子，谁会被推上去。',
@@ -2040,7 +2042,7 @@ const SCENES = {
   },
 
   c4_1:{
-    ch:4, age:15, art:IMG.banquet, en:'THE FIRST DEAL', title:'第 一 笔 生 意', sub:'FIRST GRAB · 6 SECONDS',
+    ch:4, age:15, art:IMG.banquet, pos:'50% 28%', en:'THE FIRST DEAL', title:'第 一 笔 生 意', sub:'FIRST GRAB · 6 SECONDS',
     text:[
       '拍卖会散场，你在后厅撞见一份挂牌文件：城郊那间快倒闭的药厂，晏氏要卖，江聿要买。',
       '那块地底下，明年通地铁。',
@@ -2088,7 +2090,7 @@ const SCENES = {
 
   /* ---------------- 第五章 ---------------- */
   c5_0:{
-    ch:5, age:18, art:IMG.xu, en:'BIRTHDAY BOMB', title:'十 八 岁 的 炸 弹', sub:'CAKE · 7 SECONDS',
+    ch:5, age:18, art:IMG.xu, pos:'50% 5%', artW:460, en:'BIRTHDAY BOMB', title:'十 八 岁 的 炸 弹', sub:'CAKE · 7 SECONDS',
     text:[
       '十八岁生日。江家老宅，蛋糕推上来的时候，你听见了熟悉的滴答声。',
       '——蛋糕里有一颗炸弹。红线的引信，只剩七秒。',
@@ -2116,7 +2118,7 @@ const SCENES = {
   },
 
   c5_1:{
-    ch:5, age:18, art:IMG.xu, en:'THE BOOKBINDER', title:'修 书 的 人', sub:'OLD BOOKSHOP',
+    ch:5, age:18, art:IMG.xu, pos:'50% 5%', artW:460, en:'THE BOOKBINDER', title:'修 书 的 人', sub:'OLD BOOKSHOP',
     text:[
       '第二天，你去了温叙的旧书店。',
       '店里有一股纸和樟脑的味道。他正在修一本三百年前的书，手指压着纸页，像压着一件易碎的东西。',
